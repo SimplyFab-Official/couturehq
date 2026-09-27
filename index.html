@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoutureHQ | Multi-Vendor Gown Rental CRM & Showrooms</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Typography Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDKs for Production Netlify Cloud Syncing -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            50: '#FAF8F2',
+                            100: '#F4EEDF',
+                            200: '#E6D7B4',
+                            300: '#D6BE84',
+                            400: '#C5A358',
+                            500: '#B88E2B',
+                            600: '#9B7220',
+                            700: '#7B561A',
+                            800: '#5F4018',
+                            900: '#462E14'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Cormorant Garamond', 'serif'],
+                        cinzel: ['Cinzel', 'serif'],
+                        playfair: ['Playfair Display', 'serif'],
+                        script: ['Great Vibes', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .dynamic-theme-font { font-family: var(--theme-font, 'Cormorant Garamond'), serif; }
+        .dynamic-theme-primary { color: var(--theme-primary, #B88E2B); }
+        .dynamic-theme-bg { background-color: var(--theme-primary, #B88E2B); }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="h-full text-slate-800 antialiased flex flex-col font-sans selection:bg-gold-500 selection:text-white">
+
+    <div id="adminAssistBanner" class="hidden bg-amber-500 text-slate-950 px-4 py-2.5 text-xs sm:text-sm font-semibold shadow-md flex-wrap items-center justify-between gap-2 z-50 sticky top-0">
+        <div class="flex items-center space-x-2">
+            <span class="inline-flex items-center justify-center bg-slate-950 text-amber-400 rounded-full w-6 h-6 text-xs font-bold">
+                <i class="fa-solid fa-user-gear"></i>
+            </span>
+            <span>ADMIN SUPPORT MODE ACTIVE: Assisting <strong id="adminAssistBoutiqueName" class="underline">Boutique Owner</strong></span>
+        </div>
+        <button onclick="window.exitAdminAssist()" class="bg-slate-950 hover:bg-slate-900 text-amber-400 px-3 py-1 rounded-lg text-xs font-bold transition">
+            <i class="fa-solid fa-arrow-left-long mr-1"></i> Exit Support Mode
+        </button>
+    </div>
+
+    <header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.handleLogoClick()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-gold-600 via-gold-400 to-amber-200 flex items-center justify-center shadow-md shadow-gold-500/20 text-slate-950 text-xl font-bold font-serif">
+                    C
+                </div>
+                <div>
+                    <span class="text-xl font-serif font-bold tracking-wide bg-gradient-to-r from-white via-slate-100 to-gold-300 bg-clip-text text-transparent block">
+                        CoutureHQ
+                    </span>
+                    <span class="text-[10px] tracking-widest text-gold-400/80 uppercase font-medium">Gown Rental Platform</span>
+                </div>
+            </div>
+
+            <nav id="headerNav" class="hidden md:flex items-center space-x-1 lg:space-x-2">
+                <!-- Injected dynamically via updateNavLinks() -->
+            </nav>
+
+            <div id="headerActions" class="flex items-center space-x-3">
+                <!-- Injected dynamically via updateNavLinks() -->
+            </div>
+        </div>
+    </header>
+
+    <main id="appContainer" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Rendered dynamically based on active route -->
+    </main>
+
+    <footer class="bg-slate-950 text-slate-400 border-t border-slate-800 text-sm py-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gold-500/20 text-gold-400 flex items-center justify-center font-bold font-serif text-sm">
+                    C
+                </div>
+                <div>
+                    <p class="font-semibold text-white">CoutureHQ Platform</p>
+                    <p class="text-xs text-slate-500">Multi-Vendor Gown Rental Management & Showrooms</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
+                <a href="#home" onclick="window.navigateTo('home')" class="hover:text-gold-400 transition">Home</a>
+                <a href="#admin" onclick="window.openAdminModal()" class="hover:text-gold-400 transition flex items-center space-x-1 text-slate-500">
+                    <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                    <span>Admin Access</span>
+                </a>
+            </div>
+
+            <p class="text-xs text-slate-500">
+                &copy; <span id="currentYear"></span> CoutureHQ. Ready for Netlify & Cloud Sync.
+            </p>
+        </div>
+    </footer>
+
+    <button id="floatingHelpBtn" onclick="window.openTutorialModal()" class="fixed bottom-6 left-6 z-40 bg-slate-900 hover:bg-slate-800 text-gold-400 border border-gold-500/30 p-3.5 rounded-full shadow-2xl flex items-center space-x-2 transition hover:scale-105 group">
+        <i class="fa-solid fa-graduation-cap text-lg group-hover:rotate-12 transition-transform"></i>
+        <span class="text-xs font-semibold pr-1 hidden sm:inline">Interactive Guide</span>
+    </button>
+
+    <!-- Toast Messages -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-gold-500/30 flex items-center space-x-3 pointer-events-none">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-gold-400 text-lg"></i>
+        <span id="toastMsg" class="text-sm font-medium">Action completed</span>
+    </div>
+
+    <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100">
+            <div class="bg-slate-900 px-6 py-6 text-white flex justify-between items-center relative overflow-hidden">
+                <div>
+                    <h3 id="authModalTitle" class="text-xl font-serif font-bold text-white">Boutique Owner Portal</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Manage inventory, custom themes & social links</p>
+                </div>
+                <button onclick="window.closeModal('authModal')" class="text-slate-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6">
+                <div class="flex border-b border-slate-200 mb-6">
+                    <button id="loginTabBtn" onclick="window.switchAuthTab('login')" class="flex-1 py-2.5 text-center text-sm font-bold border-b-2 border-gold-500 text-gold-600">
+                        Sign In
+                    </button>
+                    <button id="registerTabBtn" onclick="window.switchAuthTab('register')" class="flex-1 py-2.5 text-center text-sm font-semibold text-slate-400 hover:text-slate-600">
+                        Register Boutique
+                    </button>
+                </div>
+
+                <form id="authForm" onsubmit="window.handleAuthSubmit(event)" class="space-y-4">
+                    <div id="registerFields" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Boutique / Store Name *</label>
+                            <input type="text" id="regBoutiqueName" placeholder="e.g., Atelier Elegance Bridal" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Unique Storefront Handle *</label>
+                            <div class="flex items-center">
+                                <span class="bg-slate-100 border border-r-0 border-slate-200 px-3 py-2.5 rounded-l-lg text-xs text-slate-500 font-mono">#shop?handle=</span>
+                                <input type="text" id="regHandle" placeholder="atelier-elegance" class="w-full px-3.5 py-2.5 rounded-r-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500 font-mono">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Email Address *</label>
+                        <input type="email" id="authEmail" required placeholder="owner@boutique.com" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Password *</label>
+                        <input type="password" id="authPassword" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                    </div>
+
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-xl shadow-lg transition text-sm flex items-center justify-center space-x-2">
+                        <span>Continue to Boutique CRM</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-5 border-t border-slate-100 text-center">
+                    <p class="text-xs text-slate-500 mb-3">Want to explore features instantly?</p>
+                    <button onclick="window.startDemoMode()" class="w-full bg-gold-50 hover:bg-gold-100 text-gold-700 border border-gold-300 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Try Interactive Demo Account</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gownModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto border border-slate-100">
+            <div class="bg-slate-900 px-6 py-5 text-white flex justify-between items-center sticky top-0 z-10">
+                <h3 id="gownModalTitle" class="text-lg font-serif font-bold text-white">Gown Details</h3>
+                <button onclick="window.closeModal('gownModal')" class="text-slate-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="window.handleSaveGown(event)" class="p-6 space-y-4">
+                <input type="hidden" id="gownEditId">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Gown Name *</label>
+                    <input type="text" id="gownTitle" required placeholder="e.g. Royal Cathedral Lace Bridal Gown" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Category *</label>
+                        <select id="gownCategory" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                            <option value="Bridal">Bridal</option>
+                            <option value="Evening">Evening Gown</option>
+                            <option value="Debutant">Debutant / Prom</option>
+                            <option value="Cocktail">Cocktail & Party</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Size *</label>
+                        <input type="text" id="gownSize" required placeholder="US 4 / Small" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Color *</label>
+                        <input type="text" id="gownColor" placeholder="Ivory Gold" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Status *</label>
+                        <select id="gownStatus" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                            <option value="Available">Available</option>
+                            <option value="Rented">Rented / Reserved</option>
+                            <option value="Maintenance">Dry Cleaning / Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Rental Rate ($ / day) *</label>
+                        <input type="number" id="gownRate" required min="0" placeholder="250" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Security Deposit ($)</label>
+                        <input type="number" id="gownDeposit" min="0" placeholder="100" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Image URL *</label>
+                    <input type="url" id="gownImageUrl" required placeholder="https://images.unsplash.com/..." class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Description</label>
+                    <textarea id="gownDescription" rows="3" placeholder="Fabric, train length, embellishments..." class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-gold-500"></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex justify-end space-x-3">
+                    <button type="button" onclick="window.closeModal('gownModal')" class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg shadow-md">
+                        Save Gown
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-800">
+            <div class="bg-slate-950 px-6 py-6 text-white flex justify-between items-center border-b border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white">Master Admin Access</h3>
+                        <p class="text-xs text-slate-400">Technical Support & Assistance Portal</p>
+                    </div>
+                </div>
+                <button onclick="window.closeModal('adminModal')" class="text-slate-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="window.handleAdminAuth(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Enter Master Admin Passcode</label>
+                    <input type="password" id="adminPasscode" required placeholder="Enter passcode (default: admin123)" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-amber-500">
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-500 space-y-1">
+                    <p class="font-bold text-slate-700 flex items-center">
+                        <i class="fa-solid fa-circle-info text-amber-500 mr-1.5"></i> Admin Capabilities:
+                    </p>
+                    <p>&bull; Assist boutique owners by editing storefronts directly.</p>
+                    <p>&bull; Issue temporary passwords for account recovery.</p>
+                    <p class="text-[11px] text-amber-700 font-medium pt-1">&bull; Triggers: <code class="bg-amber-100 px-1 rounded">Ctrl+Shift+M</code>, <code class="bg-amber-100 px-1 rounded">Alt+Shift+A</code>, or triple-click top logo.</p>
+                </div>
+
+                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-3 rounded-xl shadow-lg transition text-sm flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-key"></i>
+                    <span>Authenticate Admin Mode</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customer Direct Social Inquiry Modal -->
+    <div id="customerInquiryModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100">
+            <div class="bg-slate-900 px-6 py-5 text-white flex justify-between items-center">
+                <h3 class="text-lg font-serif font-bold text-white">Inquire About This Gown</h3>
+                <button onclick="window.closeModal('customerInquiryModal')" class="text-slate-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="inquiryGownDetails" class="p-6 space-y-4">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Onboarding Guide Tutorial Modal -->
+    <div id="tutorialModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-gold-300">
+            <div class="bg-slate-900 px-6 py-5 text-white flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-7 h-7 rounded-lg bg-gold-500/20 text-gold-400 flex items-center justify-center text-sm font-bold">
+                        ?
+                    </div>
+                    <h3 class="text-base font-serif font-bold text-white">Boutique Owner Onboarding Guide</h3>
+                </div>
+                <button onclick="window.closeModal('tutorialModal')" class="text-slate-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="tutorialContent" class="p-6">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+                <button id="tutPrevBtn" onclick="window.prevTutorialStep()" class="text-xs font-bold text-slate-500 hover:text-slate-800 transition">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Previous
+                </button>
+                <div id="tutDots" class="flex space-x-1.5">
+                    <!-- Progress dots -->
+                </div>
+                <button id="tutNextBtn" onclick="window.nextTutorialStep()" class="bg-slate-900 hover:bg-slate-800 text-gold-400 px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-1">
+                    <span>Next Step</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample Default Boutique Dataset
+        window.sampleDemoGowns = [
+            { id: 'gown-101', title: 'Celestial Cathedral Royal Bridal Gown', category: 'Bridal', size: 'US 4 / Small', color: 'Ivory Gold', rate: 250, deposit: 100, status: 'Available', imageUrl: 'https://images.unsplash.com/photo-1594552072238-b8a33785b261?auto=format&fit=crop&w=800&q=80', description: 'Hand-embroidered lace cathedral gown with detachable train.' },
+            { id: 'gown-102', title: 'Emerald Royale Velvet Evening Gown', category: 'Evening', size: 'US 6 / Medium', color: 'Emerald Green', rate: 180, deposit: 80, status: 'Available', imageUrl: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80', description: 'Luxe velvet floor-length gown with thigh-high slit and off-shoulder sleeves.' },
+            { id: 'gown-103', title: 'Silk Mermaid Corset Bridal Gown', category: 'Bridal', size: 'US 2 / XS', color: 'Soft Champagne', rate: 280, deposit: 120, status: 'Rented', imageUrl: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=800&q=80', description: 'Structured boned corset mermaid silhouette in silk mikado fabric.' },
+            { id: 'gown-104', title: 'Boho Chiffon & Pearl A-Line Dress', category: 'Debutant', size: 'US 8 / Medium', color: 'Blush Pink', rate: 150, deposit: 50, status: 'Maintenance', imageUrl: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80', description: 'Ethereal layered chiffon gown with delicate pearl embellishments.' }
+        ];
+
+        window.sampleBoutiquesDirectory = [
+            {
+                id: 'boutique-1',
+                email: 'owner@atelier.com',
+                password: 'password123',
+                profile: {
+                    businessName: 'Atelier Elegance Bridal',
+                    handle: 'atelier-elegance',
+                    logoUrl: 'https://images.unsplash.com/photo-1546804784-896d0dca3800?auto=format&fit=crop&w=200&q=80',
+                    phone: '+1 555-0192',
+                    whatsapp: '15550192',
+                    viber: '15550192',
+                    instagram: 'atelier_elegance_official',
+                    address: '888 Haute Couture Blvd, Suite 400',
+                    primaryColor: '#B88E2B',
+                    secondaryColor: '#E5D6B1',
+                    fontFamily: 'Cormorant Garamond'
+                },
+                inventory: [...window.sampleDemoGowns],
+                bookings: []
+            }
+        ];
+
+        window.themePresets = {
+            gold: { name: 'Royal Gold', primary: '#B88E2B', secondary: '#E5D6B1', font: 'Cormorant Garamond' },
+            rose: { name: 'Rose Quartz & Champagne', primary: '#BE123C', secondary: '#FECDD3', font: 'Playfair Display' },
+            emerald: { name: 'Imperial Emerald', primary: '#047857', secondary: '#A7F3D0', font: 'Cinzel' },
+            onyx: { name: 'Midnight High-Fashion', primary: '#0F172A', secondary: '#94A3B8', font: 'Plus Jakarta Sans' },
+            sapphire: { name: 'Sapphire Elegance', primary: '#1E40AF', secondary: '#BFDBFE', font: 'Cinzel' },
+            lavender: { name: 'Lavender Whimsy', primary: '#7E22CE', secondary: '#E9D5FF', font: 'Great Vibes' }
+        };
+
+        window.appState = {
+            currentOwner: null,
+            currentBoutique: null,
+            currentView: 'home',
+            isDemo: false,
+            isAdmin: false,
+            adminAssisting: null,
+            tutorialStep: 1
+        };
+
+        // Utility Methods
+        window.showToast = function(msg, iconClass) {
+            var toast = document.getElementById('toast');
+            var toastMsg = document.getElementById('toastMsg');
+            var toastIcon = document.getElementById('toastIcon');
+
+            if (toast && toastMsg) {
+                toastMsg.textContent = msg;
+                if (toastIcon && iconClass) toastIcon.className = iconClass;
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+
+                setTimeout(function() {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 3000);
+            }
+        };
+
+        window.openModal = function(id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.remove('hidden');
+        };
+
+        window.closeModal = function(id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        };
+
+        window.getBoutiquesData = function() {
+            var local = localStorage.getItem('couture_boutiques');
+            if (local) {
+                try {
+                    var parsed = JSON.parse(local);
+                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                } catch (e) { console.error(e); }
+            }
+            localStorage.setItem('couture_boutiques', JSON.stringify(window.sampleBoutiquesDirectory));
+            return window.sampleBoutiquesDirectory;
+        };
+
+        window.saveBoutiquesData = function(data) {
+            localStorage.setItem('couture_boutiques', JSON.stringify(data));
+        };
+
+        window.navigateTo = function(viewName) {
+            window.appState.currentView = viewName;
+            var container = document.getElementById('appContainer');
+            if (!container) return;
+
+            window.updateNavLinks();
+
+            if (viewName === 'home') window.renderHomeView(container);
+            else if (viewName === 'dashboard') window.renderDashboardView(container);
+            else if (viewName === 'settings') window.renderSettingsView(container);
+            else if (viewName === 'publicShop') window.renderPublicShopView(container);
+            else if (viewName === 'adminPortal') window.renderAdminPortalView(container);
+        };
+
+        window.updateNavLinks = function() {
+            var headerNav = document.getElementById('headerNav');
+            var headerActions = document.getElementById('headerActions');
+            if (!headerNav || !headerActions) return;
+
+            var activeBoutique = window.appState.currentBoutique || window.appState.adminAssisting;
+
+            if (activeBoutique) {
+                headerNav.innerHTML = `
+                    <button onclick="window.navigateTo('dashboard')" class="px-3.5 py-2 rounded-lg text-xs font-bold ${window.appState.currentView === 'dashboard' ? 'bg-gold-500 text-slate-950' : 'text-slate-300 hover:text-white hover:bg-slate-800'} transition">
+                        <i class="fa-solid fa-gauge mr-1.5"></i> Dashboard
+                    </button>
+                    <button onclick="window.navigateTo('settings')" class="px-3.5 py-2 rounded-lg text-xs font-bold ${window.appState.currentView === 'settings' ? 'bg-gold-500 text-slate-950' : 'text-slate-300 hover:text-white hover:bg-slate-800'} transition">
+                        <i class="fa-solid fa-palette mr-1.5"></i> Branding & Themes
+                    </button>
+                    <button onclick="window.navigateTo('publicShop')" class="px-3.5 py-2 rounded-lg text-xs font-bold text-gold-400 hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-store mr-1.5"></i> View Showroom
+                    </button>
+                `;
+
+                headerActions.innerHTML = `
+                    <div class="hidden sm:flex items-center space-x-3 text-right pr-2">
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-white">${activeBoutique.profile.businessName}</span>
+                            <span class="text-[10px] font-mono text-gold-400">#${activeBoutique.profile.handle}</span>
+                        </div>
+                    </div>
+                    <button onclick="window.handleSignOut()" class="bg-slate-800 hover:bg-red-950 hover:text-red-300 text-slate-300 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 transition" title="Sign Out">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                `;
+            } else {
+                headerNav.innerHTML = `
+                    <button onclick="window.navigateTo('home')" class="px-3.5 py-2 rounded-lg text-xs font-bold ${window.appState.currentView === 'home' ? 'bg-gold-500 text-slate-950' : 'text-slate-300 hover:text-white hover:bg-slate-800'} transition">
+                        Home
+                    </button>
+                `;
+
+                headerActions.innerHTML = `
+                    <button onclick="window.openAuthModal('login')" class="text-xs font-bold text-slate-300 hover:text-white px-3.5 py-2">
+                        Sign In
+                    </button>
+                    <button onclick="window.openAuthModal('register')" class="bg-gradient-to-r from-gold-500 to-amber-400 hover:from-gold-600 hover:to-amber-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg transition">
+                        Register Boutique
+                    </button>
+                `;
+            }
+        };
+
+        window.renderHomeView = function(container) {
+            container.innerHTML = `
+                <div class="space-y-16 py-8">
+                    <div class="relative bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 p-8 sm:p-14 text-white">
+                        <div class="max-w-2xl relative z-10 space-y-6">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gold-500/20 text-gold-300 border border-gold-500/30">
+                                <i class="fa-solid fa-crown text-[10px] mr-1.5"></i> Multi-Vendor Boutique Platform
+                            </span>
+                            <h1 class="text-4xl sm:text-5xl font-serif font-bold text-white leading-tight">
+                                Streamline Your Gown Rental Boutique & Showrooms
+                            </h1>
+                            <p class="text-slate-300 text-base leading-relaxed">
+                                Manage rental gowns, log client fitting reservations, customize your boutique branding, and publish shareable customer showrooms with direct WhatsApp, Viber, & SMS messaging.
+                            </p>
+                            <div class="flex flex-wrap gap-4 pt-2">
+                                <button onclick="window.openAuthModal('register')" class="bg-gold-500 hover:bg-gold-600 text-slate-950 font-bold px-6 py-3.5 rounded-xl shadow-xl transition text-sm flex items-center space-x-2">
+                                    <span>Register Your Boutique Free</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                                <button onclick="window.startDemoMode()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3.5 rounded-xl border border-slate-700 transition text-sm flex items-center space-x-2">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-gold-400"></i>
+                                    <span>Try Live Interactive Demo</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        window.renderDashboardView = function(container) {
+            var boutique = window.appState.currentBoutique || window.appState.adminAssisting;
+            if (!boutique) { window.navigateTo('home'); return; }
+
+            var gowns = boutique.inventory || [];
+            var availableCount = gowns.filter(g => g.status === 'Available').length;
+            var rentedCount = gowns.filter(g => g.status === 'Rented').length;
+
+            var baseLoc = window.location.origin + window.location.pathname;
+            var shareUrl = baseLoc + '#shop?handle=' + boutique.profile.handle;
+
+            container.innerHTML = `
+                <div class="space-y-8">
+                    <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div>
+                            <h2 class="text-2xl sm:text-3xl font-serif font-bold text-white">${boutique.profile.businessName}</h2>
+                            <p class="text-xs text-slate-400 mt-1">Manage gown availability and share your custom storefront.</p>
+                        </div>
+
+                        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 w-full md:w-auto min-w-[320px] space-y-2">
+                            <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Unique Storefront Link:</span>
+                            <div class="flex items-center space-x-2">
+                                <input type="text" readonly value="${shareUrl}" class="bg-slate-900 text-gold-400 text-xs px-3 py-2 rounded-lg border border-slate-800 w-full font-mono focus:outline-none">
+                                <button onclick="window.copyToClipboard('${shareUrl}')" class="bg-gold-500 hover:bg-gold-600 text-slate-950 font-bold px-3 py-2 rounded-lg text-xs transition">
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <span class="text-xs text-slate-500 font-semibold block mb-1">Total Collection</span>
+                            <span class="text-3xl font-bold text-slate-900 font-serif">${gowns.length}</span>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <span class="text-xs text-slate-500 font-semibold block mb-1">Available Gowns</span>
+                            <span class="text-3xl font-bold text-emerald-600 font-serif">${availableCount}</span>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <span class="text-xs text-slate-500 font-semibold block mb-1">Currently Rented</span>
+                            <span class="text-3xl font-bold text-amber-600 font-serif">${rentedCount}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+                            <h3 class="text-lg font-serif font-bold text-slate-900">Gown Rental Inventory</h3>
+                            <button onclick="window.openGownModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow transition">
+                                <i class="fa-solid fa-plus text-gold-400 mr-1"></i> Add New Gown
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-3.5">Gown</th>
+                                        <th class="px-6 py-3.5">Category</th>
+                                        <th class="px-6 py-3.5">Size / Color</th>
+                                        <th class="px-6 py-3.5">Rate</th>
+                                        <th class="px-6 py-3.5">Status</th>
+                                        <th class="px-6 py-3.5 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-xs">
+                                    ${gowns.length === 0 ? `
+                                        <tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">No gowns listed yet.</td></tr>
+                                    ` : gowns.map(g => `
+                                        <tr class="hover:bg-slate-50 transition">
+                                            <td class="px-6 py-4 font-bold text-slate-900">${g.title}</td>
+                                            <td class="px-6 py-4">${g.category}</td>
+                                            <td class="px-6 py-4">${g.size} &bull; ${g.color}</td>
+                                            <td class="px-6 py-4 font-bold">$${g.rate} / day</td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${g.status === 'Available' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                                    ${g.status}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <button onclick="window.openGownModal('${g.id}')" class="p-2 text-slate-500 hover:text-slate-900">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </button>
+                                                <button onclick="window.deleteGown('${g.id}')" class="p-2 text-red-500 hover:text-red-700">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        window.renderSettingsView = function(container) {
+            var boutique = window.appState.currentBoutique || window.appState.adminAssisting;
+            if (!boutique) { window.navigateTo('home'); return; }
+
+            var p = boutique.profile;
+
+            container.innerHTML = `
+                <div class="space-y-8 max-w-4xl mx-auto">
+                    <div>
+                        <h2 class="text-2xl font-serif font-bold text-slate-900">Boutique Branding & Theme Customizer</h2>
+                        <p class="text-xs text-slate-500">Personalize store handle, themes, and social channels.</p>
+                    </div>
+
+                    <form onsubmit="window.handleSaveSettings(event)" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Boutique Name *</label>
+                                    <input type="text" id="setBusinessName" required value="${p.businessName}" class="w-full px-3.5 py-2.5 rounded-lg border text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Storefront Handle *</label>
+                                    <input type="text" id="setHandle" required value="${p.handle}" class="w-full px-3.5 py-2.5 rounded-lg border text-sm font-mono">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">WhatsApp Number</label>
+                                    <input type="text" id="setWhatsapp" value="${p.whatsapp || ''}" class="w-full px-3.5 py-2.5 rounded-lg border text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Viber Number</label>
+                                    <input type="text" id="setViber" value="${p.viber || ''}" class="w-full px-3.5 py-2.5 rounded-lg border text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-gold-400 font-bold px-8 py-3.5 rounded-xl shadow-xl transition text-sm">
+                                Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        };
+
+        window.renderPublicShopView = function(container) {
+            var hash = window.location.hash || '';
+            var handle = 'atelier-elegance';
+
+            if (hash.includes('shop?handle=')) {
+                handle = hash.split('shop?handle=')[1];
+            } else if (window.appState.currentBoutique) {
+                handle = window.appState.currentBoutique.profile.handle;
+            }
+
+            var boutiques = window.getBoutiquesData();
+            var targetBoutique = boutiques.find(b => b.profile.handle === handle) || boutiques[0];
+
+            var p = targetBoutique.profile;
+            var gowns = targetBoutique.inventory || [];
+
+            container.innerHTML = `
+                <div class="space-y-12 pb-12">
+                    <div class="relative rounded-3xl p-8 sm:p-14 text-white shadow-2xl overflow-hidden" style="background-color: ${p.primaryColor || '#B88E2B'};">
+                        <div class="max-w-2xl space-y-4">
+                            <h1 class="text-4xl sm:text-5xl font-bold font-serif">${p.businessName}</h1>
+                            <p class="text-white/90 text-sm font-sans">${p.address || 'Haute Couture Bridal & Evening Gown Rental Showroom'}</p>
+                            <div class="flex flex-wrap gap-3 pt-4">
+                                ${p.whatsapp ? `
+                                    <a href="https://wa.me/${p.whatsapp}" target="_blank" class="bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center space-x-2">
+                                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                                        <span>WhatsApp Inquiry</span>
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        ${gowns.map(g => `
+                            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-md flex flex-col">
+                                <img src="${g.imageUrl}" class="w-full h-80 object-cover" onerror="this.src='https://placehold.co/400x500/f1f5f9/94a3b8?text=Gown'">
+                                <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                                    <div>
+                                        <span class="text-xs text-slate-400 uppercase tracking-widest font-semibold">${g.category} &bull; ${g.size}</span>
+                                        <h3 class="text-xl font-bold text-slate-900 mt-1">${g.title}</h3>
+                                    </div>
+                                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                        <p class="text-xl font-bold text-slate-900">$${g.rate} / day</p>
+                                        <button onclick="window.openCustomerInquiryModal('${g.title.replace(/'/g, "\\'")}', '${p.whatsapp || ''}', '${p.phone || ''}')" class="bg-slate-900 text-gold-400 text-xs font-bold px-4 py-2.5 rounded-xl">
+                                            Inquire
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        };
+
+        window.renderAdminPortalView = function(container) {
+            var boutiques = window.getBoutiquesData();
+
+            container.innerHTML = `
+                <div class="space-y-8">
+                    <div class="bg-slate-900 text-white rounded-3xl p-8 shadow-2xl border border-slate-800">
+                        <h2 class="text-3xl font-serif font-bold text-white">Master Admin Console</h2>
+                        <p class="text-xs text-slate-400 mt-1">Directly assist boutique owners and modify storefronts.</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-slate-200">
+                            <h3 class="text-lg font-bold text-slate-900">Registered Boutiques</h3>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-3.5">Boutique Name</th>
+                                        <th class="px-6 py-3.5">Store Handle</th>
+                                        <th class="px-6 py-3.5 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-xs">
+                                    ${boutiques.map(b => `
+                                        <tr>
+                                            <td class="px-6 py-4 font-bold">${b.profile.businessName}</td>
+                                            <td class="px-6 py-4 font-mono">#${b.profile.handle}</td>
+                                            <td class="px-6 py-4 text-right">
+                                                <button onclick="window.assistBoutiqueOwner('${b.profile.handle}')" class="bg-amber-500 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs">
+                                                    Assist & Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Modal & Auth Actions
+        window.openAuthModal = function(tab) {
+            window.switchAuthTab(tab || 'login');
+            window.openModal('authModal');
+        };
+
+        window.switchAuthTab = function(tab) {
+            var loginBtn = document.getElementById('loginTabBtn');
+            var regBtn = document.getElementById('registerTabBtn');
+            var regFields = document.getElementById('registerFields');
+
+            if (tab === 'login') {
+                if (loginBtn) loginBtn.className = 'flex-1 py-2.5 text-center text-sm font-bold border-b-2 border-gold-500 text-gold-600';
+                if (regBtn) regBtn.className = 'flex-1 py-2.5 text-center text-sm font-semibold text-slate-400 hover:text-slate-600';
+                if (regFields) regFields.classList.add('hidden');
+            } else {
+                if (regBtn) regBtn.className = 'flex-1 py-2.5 text-center text-sm font-bold border-b-2 border-gold-500 text-gold-600';
+                if (loginBtn) loginBtn.className = 'flex-1 py-2.5 text-center text-sm font-semibold text-slate-400 hover:text-slate-600';
+                if (regFields) regFields.classList.remove('hidden');
+            }
+        };
+
+        window.handleAuthSubmit = function(e) {
+            e.preventDefault();
+            var email = document.getElementById('authEmail').value.trim();
+            var password = document.getElementById('authPassword').value;
+            var isReg = !document.getElementById('registerFields').classList.contains('hidden');
+
+            var boutiques = window.getBoutiquesData();
+
+            if (isReg) {
+                var bName = document.getElementById('regBoutiqueName').value || 'My Gown Boutique';
+                var rawHandle = document.getElementById('regHandle').value.trim() || 'my-boutique-' + Date.now();
+                var handle = rawHandle.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+
+                var newBoutique = {
+                    id: 'boutique-' + Date.now(),
+                    email: email,
+                    password: password,
+                    profile: {
+                        businessName: bName,
+                        handle: handle,
+                        phone: '+1 555-0100',
+                        whatsapp: '15550100',
+                        primaryColor: '#B88E2B'
+                    },
+                    inventory: [...window.sampleDemoGowns]
+                };
+
+                boutiques.push(newBoutique);
+                window.saveBoutiquesData(boutiques);
+                window.appState.currentBoutique = newBoutique;
+                window.showToast('Registered boutique successfully!');
+            } else {
+                var matched = boutiques.find(b => b.email === email && b.password === password) || boutiques[0];
+                window.appState.currentBoutique = matched;
+                window.showToast('Signed in successfully!');
+            }
+
+            window.closeModal('authModal');
+            window.navigateTo('dashboard');
+        };
+
+        window.startDemoMode = function() {
+            window.appState.isDemo = true;
+            window.appState.currentBoutique = window.getBoutiquesData()[0];
+            window.closeModal('authModal');
+            window.showToast('Entered interactive demo mode!', 'fa-solid fa-wand-magic-sparkles text-gold-400');
+            window.navigateTo('dashboard');
+        };
+
+        window.handleSignOut = function() {
+            window.appState.currentBoutique = null;
+            window.appState.isDemo = false;
+            window.appState.adminAssisting = null;
+            window.showToast('Signed out successfully.');
+            window.navigateTo('home');
+        };
+
+        window.openGownModal = function(gownId) {
+            var boutique = window.appState.currentBoutique || window.appState.adminAssisting;
+            if (!boutique) return;
+
+            document.getElementById('gownEditId').value = gownId || '';
+
+            if (gownId) {
+                var g = boutique.inventory.find(item => item.id === gownId);
+                if (g) {
+                    document.getElementById('gownTitle').value = g.title;
+                    document.getElementById('gownCategory').value = g.category;
+                    document.getElementById('gownSize').value = g.size;
+                    document.getElementById('gownColor').value = g.color;
+                    document.getElementById('gownRate').value = g.rate;
+                    document.getElementById('gownStatus').value = g.status;
+                    document.getElementById('gownImageUrl').value = g.imageUrl;
+                }
+            } else {
+                document.getElementById('gownTitle').value = '';
+                document.getElementById('gownRate').value = '200';
+                document.getElementById('gownImageUrl').value = 'https://images.unsplash.com/photo-1594552072238-b8a33785b261?auto=format&fit=crop&w=800&q=80';
+            }
+
+            window.openModal('gownModal');
+        };
+
+        window.handleSaveGown = function(e) {
+            e.preventDefault();
+            var boutique = window.appState.currentBoutique || window.appState.adminAssisting;
+            if (!boutique) return;
+
+            var editId = document.getElementById('gownEditId').value;
+            var gownData = {
+                id: editId || 'gown-' + Date.now(),
+                title: document.getElementById('gownTitle').value,
+                category: document.getElementById('gownCategory').value,
+                size: document.getElementById('gownSize').value,
+                color: document.getElementById('gownColor').value,
+                rate: Number(document.getElementById('gownRate').value),
+                status: document.getElementById('gownStatus').value,
+                imageUrl: document.getElementById('gownImageUrl').value
+            };
+
+            if (editId) {
+                var idx = boutique.inventory.findIndex(i => i.id === editId);
+                if (idx !== -1) boutique.inventory[idx] = gownData;
+            } else {
+                boutique.inventory.push(gownData);
+            }
+
+            var boutiques = window.getBoutiquesData();
+            var bIdx = boutiques.findIndex(b => b.id === boutique.id);
+            if (bIdx !== -1) {
+                boutiques[bIdx] = boutique;
+                window.saveBoutiquesData(boutiques);
+            }
+
+            window.closeModal('gownModal');
+            window.showToast('Gown saved successfully!');
+            window.navigateTo('dashboard');
+        };
+
+        window.deleteGown = function(gownId) {
+            var boutique = window.appState.currentBoutique || window.appState.adminAssisting;
+            if (!boutique) return;
+
+            boutique.inventory = boutique.inventory.filter(g => g.id !== gownId);
+            var boutiques = window.getBoutiquesData();
+            var bIdx = boutiques.findIndex(b => b.id === boutique.id);
+            if (bIdx !== -1) {
+                boutiques[bIdx] = boutique;
+                window.saveBoutiquesData(boutiques);
+            }
+
+            window.showToast('Gown deleted');
+            window.navigateTo('dashboard');
+        };
+
+        window.handleSaveSettings = function(e) {
+            e.preventDefault();
+            var boutique = window.appState.currentBoutique || window.appState.adminAssisting;
+            if (!boutique) return;
+
+            var newHandle = document.getElementById('setHandle').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+            boutique.profile.businessName = document.getElementById('setBusinessName').value;
+            boutique.profile.handle = newHandle || boutique.profile.handle;
+            boutique.profile.whatsapp = document.getElementById('setWhatsapp').value;
+
+            var boutiques = window.getBoutiquesData();
+            var bIdx = boutiques.findIndex(b => b.id === boutique.id);
+            if (bIdx !== -1) boutiques[bIdx] = boutique;
+            window.saveBoutiquesData(boutiques);
+
+            window.showToast('Branding settings saved!');
+            window.updateNavLinks();
+        };
+
+        window.openAdminModal = function() {
+            window.openModal('adminModal');
+        };
+
+        window.handleAdminAuth = function(e) {
+            e.preventDefault();
+            var pass = document.getElementById('adminPasscode').value;
+            if (pass === 'admin123') {
+                window.appState.isAdmin = true;
+                window.closeModal('adminModal');
+                window.showToast('Master Admin Access Granted', 'fa-solid fa-shield-halved text-amber-400');
+                window.navigateTo('adminPortal');
+            } else {
+                window.showToast('Invalid admin passcode', 'fa-solid fa-circle-exclamation text-red-400');
+            }
+        };
+
+        window.assistBoutiqueOwner = function(handle) {
+            var boutiques = window.getBoutiquesData();
+            var target = boutiques.find(b => b.profile.handle === handle);
+            if (!target) return;
+
+            window.appState.adminAssisting = target;
+            var banner = document.getElementById('adminAssistBanner');
+            var bName = document.getElementById('adminAssistBoutiqueName');
+            if (banner && bName) {
+                bName.textContent = target.profile.businessName;
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+            }
+
+            window.showToast('Support Mode Active for ' + target.profile.businessName);
+            window.navigateTo('dashboard');
+        };
+
+        window.exitAdminAssist = function() {
+            window.appState.adminAssisting = null;
+            var banner = document.getElementById('adminAssistBanner');
+            if (banner) banner.classList.add('hidden');
+            window.showToast('Exited Admin Support Mode');
+            window.navigateTo('adminPortal');
+        };
+
+        window.openCustomerInquiryModal = function(gownTitle, whatsapp, phone) {
+            var details = document.getElementById('inquiryGownDetails');
+            if (details) {
+                details.innerHTML = `
+                    <p class="text-sm font-bold text-slate-900">${gownTitle}</p>
+                    <p class="text-xs text-slate-500">Contact boutique directly to schedule fitting:</p>
+                    <div class="space-y-2 pt-3">
+                        ${whatsapp ? `
+                            <a href="https://wa.me/${whatsapp}?text=Hi!%20I%20am%20interested%20in%20renting%20the%20${encodeURIComponent(gownTitle)}" target="_blank" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2">
+                                <i class="fa-brands fa-whatsapp text-sm"></i>
+                                <span>Inquire via WhatsApp</span>
+                            </a>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            window.openModal('customerInquiryModal');
+        };
+
+        window.copyToClipboard = function(text) {
+            var temp = document.createElement('input');
+            document.body.appendChild(temp);
+            temp.value = text;
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            window.showToast('Link copied!');
+        };
+
+        window.openTutorialModal = function() {
+            window.appState.tutorialStep = 1;
+            window.renderTutorialStep();
+            window.openModal('tutorialModal');
+        };
+
+        window.renderTutorialStep = function() {
+            var content = document.getElementById('tutorialContent');
+            var dots = document.getElementById('tutDots');
+            var step = window.appState.tutorialStep;
+
+            var steps = [
+                { title: 'Step 1: Managing Gown Inventory', text: 'Add gowns, set daily rates, sizes, and toggle availability status.' },
+                { title: 'Step 2: Social Contact Channels', text: 'Add your WhatsApp and Viber numbers so clients reach you in 1 click.' },
+                { title: 'Step 3: Sharing Your Storefront', text: 'Copy your unique #shop?handle= link and share it on Instagram or Facebook!' }
+            ];
+
+            var curr = steps[step - 1];
+            if (content) {
+                content.innerHTML = `
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold text-gold-600 uppercase">Guide Step ${step} of 3</span>
+                        <h4 class="text-xl font-serif font-bold text-slate-900">${curr.title}</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">${curr.text}</p>
+                    </div>
+                `;
+            }
+            if (dots) {
+                dots.innerHTML = steps.map((_, i) => `
+                    <div class="w-2.5 h-2.5 rounded-full ${i + 1 === step ? 'bg-gold-500' : 'bg-slate-200'}"></div>
+                `).join('');
+            }
+        };
+
+        window.prevTutorialStep = function() {
+            if (window.appState.tutorialStep > 1) {
+                window.appState.tutorialStep--;
+                window.renderTutorialStep();
+            }
+        };
+
+        window.nextTutorialStep = function() {
+            if (window.appState.tutorialStep < 3) {
+                window.appState.tutorialStep++;
+                window.renderTutorialStep();
+            } else {
+                window.closeModal('tutorialModal');
+            }
+        };
+
+        // Key Listener for Admin Access
+        document.addEventListener('keydown', function(e) {
+            var isA = e.key === 'A' || e.key === 'a' || e.code === 'KeyA';
+            var isM = e.key === 'M' || e.key === 'm' || e.code === 'KeyM';
+            var isCtrlOrCmd = e.ctrlKey || e.metaKey;
+
+            if ((isCtrlOrCmd && e.shiftKey && (isA || isM)) || (e.altKey && (isA || isM))) {
+                e.preventDefault();
+                window.openAdminModal();
+            }
+        });
+
+        window.addEventListener('hashchange', function() {
+            var hash = window.location.hash || '';
+            if (hash === '#admin' || hash === '#adminPortal') {
+                window.openAdminModal();
+            } else if (hash.includes('shop?handle=')) {
+                window.navigateTo('publicShop');
+            } else if (hash === '#home') {
+                window.navigateTo('home');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var yearEl = document.getElementById('currentYear');
+            if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+            window.getBoutiquesData();
+
+            var hash = window.location.hash || '';
+            if (hash === '#admin' || hash === '#adminPortal') {
+                window.updateNavLinks();
+                window.openAdminModal();
+                window.navigateTo('home');
+            } else if (hash.includes('shop?handle=')) {
+                window.navigateTo('publicShop');
+            } else {
+                window.navigateTo('home');
+            }
+        });
+    </script>
+</body>
+</html>
